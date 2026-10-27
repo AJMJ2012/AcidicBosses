@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Luminance.Common.Utilities;
 using Luminance.Core.Graphics;
 using Microsoft.Xna.Framework;
@@ -81,16 +82,15 @@ public class DrawRenderTargetSystem : ModSystem
 
         orig(self, behindtiles);
     }
-    
+
+    static readonly FieldInfo SpriteBatch_beginCalled_Field = typeof(SpriteBatch).GetField("beginCalled", BindingFlags.NonPublic | BindingFlags.Instance);
+
     private void DrawToRenderTargets()
     {
-        try
+        bool beginCalled = (bool)SpriteBatch_beginCalled_Field.GetValue(Main.spriteBatch);
+        if (beginCalled)
         {
             Main.spriteBatch.End();
-        }
-        catch (Exception _)
-        {
-            // ignored
         }
 
         foreach (var batch in DrawActions)
