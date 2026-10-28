@@ -20,6 +20,7 @@ public class DrawRenderTargetSystem : ModSystem
     public delegate void RtDrawAction(SpriteBatch spritebatch);
 
     private static readonly Dictionary<ShadedRenderTarget, List<RtDrawAction>> DrawActions = new();
+    private static readonly FieldInfo SpritebatchHasBegunField = typeof(SpriteBatch).GetField("beginCalled", BindingFlags.NonPublic | BindingFlags.Instance);
     
     public override void OnModLoad()
     {
@@ -82,12 +83,10 @@ public class DrawRenderTargetSystem : ModSystem
 
         orig(self, behindtiles);
     }
-
-    static readonly FieldInfo SpriteBatch_beginCalled_Field = typeof(SpriteBatch).GetField("beginCalled", BindingFlags.NonPublic | BindingFlags.Instance);
-
+    
     private void DrawToRenderTargets()
     {
-        bool beginCalled = (bool)SpriteBatch_beginCalled_Field.GetValue(Main.spriteBatch);
+        var beginCalled = (bool)SpritebatchHasBegunField.GetValue(Main.spriteBatch);
         if (beginCalled)
         {
             Main.spriteBatch.End();
